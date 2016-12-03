@@ -1,7 +1,7 @@
 ### Installation:
 
 ```
-git clone https://github.com/SeniorCarnivore/test-react-ajax.git
+git clone https://github.com/SeniorCarnivore/SpaceInvaders.git
 npm i
 bower i
 gulp

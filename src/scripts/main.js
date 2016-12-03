@@ -1,13 +1,3 @@
-let GameData = {
-  Canvas: document.createElement('canvas'),
-  context: false,
-  windowWidth: window.innerWidth,
-  windowHeight: window.innerHeight,
-  images: ['../img/dude.png','../img/bg.jpg'],
-  fps: 60,
-  invaders: 30
-}
-
 window.requestAnimFrame = (() => {
 	return  window.requestAnimationFrame       ||
 					window.webkitRequestAnimationFrame ||
@@ -15,30 +5,37 @@ window.requestAnimFrame = (() => {
           window.oRequestAnimationFrame      ||
           window.msRequestAnimationFrame     ||
           function (callback, element) {
-              window.setTimeout(callback, 1000 / GameData.fps);
+              window.setTimeout(callback, 1000 / GAME.fps);
           };
 	})();
 
 class GAME {
   constructor() {
-    document.body.appendChild(GameData.Canvas);
-    GameData.context = GameData.Canvas.getContext('2d');
+    this.сanvas = document.createElement('canvas');
+    this.context = this.сanvas.getContext('2d');
+    this.windowWidth = window.innerWidth;
+    this.windowHeight = window.innerHeight;
+    this.images = ['../img/dude.png','../img/bg.jpg'];
+    this.fps = 60;
+    this.invaders = 30;
+
+    document.body.appendChild(this.canvas);
     this.resizeCanvas();
     this.handleEvents();
     this.preloadImages();
   }
 
   resizeCanvas() {
-    GameData.Canvas.width = GameData.windowWidth - 15;
-    GameData.Canvas.height = GameData.windowHeight - 15;
+    this.canvas.width = this.windowWidth - 15;
+    this.canvas.height = this.windowHeight - 15;
   }
 
   preloadImages() {
     const
-      ImagesCounter = GameData.images.length - 1,
+      ImagesCounter = this.images.length - 1,
       t = this;
 
-    GameData.images.forEach((sourse, i) => {
+    this.images.forEach((sourse, i) => {
       let
         image = new Image(),
         body = document.querySelector('body');
@@ -54,8 +51,8 @@ class GAME {
   }
 
   windowResize() {
-    GameData.windowWidth = window.innerWidth;
-    GameData.windowHeight = window.innerHeight;
+    this.windowWidth = window.innerWidth;
+    this.windowHeight = window.innerHeight;
     this.resizeCanvas();
   }
 
@@ -64,7 +61,7 @@ class GAME {
   //
   //   setTimeout(function() {
   //     window.requestAnimationFrame(t.gameLoop);
-  //   }, 1000 / GameData.fps);
+  //   }, 1000 / this.fps);
   // }
 
   handleEvents() {
@@ -82,7 +79,7 @@ class Swarm {
   }
 
   gatherBeings() {
-    for (let i = 0; i <= GameData.invaders; i++) {
+    for (let i = 0; i <= this.invaders; i++) {
       this.population.push(new Being());
     }
   }
@@ -95,10 +92,10 @@ class Swarm {
 
 class Being {
   constructor() {
-    this.context = GameData.context;
+    this.context = this.context;
     this.width = 10;
     this.height = 10;
-    this.image = GameData.images[0];
+    this.image = this.images[0];
     this.offsetX = 10;
     this.offsetY = 10;
   }
