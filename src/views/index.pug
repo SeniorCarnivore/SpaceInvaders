@@ -1,6 +1,12 @@
 
 extends templates/layout
 block vars
-  - var title = 'TRACKER'
+  - var title = 'Invaders'
 
 block content
+  .start-screen
+    p.
+      → ----------- move right<br>
+      ← ----------- move left<br>
+      spacebar ---- shoot
+    button.button Start

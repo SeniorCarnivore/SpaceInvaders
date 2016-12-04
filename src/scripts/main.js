@@ -1,13 +1,14 @@
 window.requestAnimationFrame = (() => {
-  return  window.requestAnimationFrame       ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame    ||
-          window.oRequestAnimationFrame      ||
-          window.msRequestAnimationFrame     ||
-          function (callback, element) {
-              window.setTimeout(callback, 1000 / GAME.fps);
-          };
-  })();
+  return (
+    window.requestAnimationFrame       ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    ||
+    window.oRequestAnimationFrame      ||
+    window.msRequestAnimationFrame     ||
+    function (callback, element) {
+        window.setTimeout(callback, 1000 / GAME.fps);
+    });
+})();
 
 class GAME {
   constructor() {
@@ -30,7 +31,7 @@ class GAME {
     ];
 
     this.objects = this.objects.concat(new Ship(this, this.canvasSize, this.images[1]));
-    this.objects = this.objects.concat(this.swarmUp(this.images[0]));
+    this.swarmUp(this.images[0])
     document.body.appendChild(this.canvas);
     this.resizeCanvas();
     this.handleEvents();
@@ -59,23 +60,38 @@ class GAME {
   };
 
   update() {
+
+    if (this.beings === 0) {
+      this.destroy()
+      new Finish(this.game, 'You win!');
+    }
+
     const survivers = (firstObject) => {
       return (this.objects.filter(
         (secondObject) => {
-          return (this.checkCollisions(firstObject, secondObject));
+          return (
+            this.checkCollisions(firstObject, secondObject)
+          );
         }
       ).length === 0);
     };
 
     this.objects = this.objects.filter(survivers);
+
+    let beings = 0;
     for (let i = 0; i < this.objects.length; i++) {
       this.objects[i].update();
+
+      if (this.objects[i] instanceof Being) {
+        beings += 1;
+      }
+
+      this.beings = beings;
     }
   }
 
   render(context, canvasSize) {
     context.clearRect(0, 0, canvasSize.width, canvasSize.height);
-
     for (let i = 0; i < this.objects.length; i++) {
       this.drawObject(
         context,
@@ -114,16 +130,16 @@ class GAME {
   }
 
   swarmUp(imgSrc) {
-    let swarm = [];
+    this.swarm = [];
+    this.beings = 60;
 
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < this.beings; i++) {
 
       const
         posX = 10 + (i % 12) * 80,
         posY = 10 + (i % 5) * 60;
 
-      // Create invader.
-      swarm.push(
+      this.swarm.push(
         new Being(
           this,
           {
@@ -134,7 +150,7 @@ class GAME {
       );
     }
 
-    return swarm;
+    this.objects = this.objects.concat(this.swarm);
   }
 
   preloadImages(callback) {
@@ -166,6 +182,10 @@ class GAME {
     this.canvasSize.width = window.innerWidth;
     this.canvasSize.height = window.innerHeight;
     this.resizeCanvas();
+  }
+
+  destroy() {
+    delete window.game
   }
 
   handleEvents() {
@@ -225,12 +245,12 @@ class Ship {
     );
 
     this.game.objects.push(laser);
+    new Audio('../sound/spas12.mp3', false);
   }
 
   playerAction(keyCode) {
     if (keyCode === 37) {
       this.position.posX -= 10;
-
     } else if (keyCode === 39) {
       this.position.posX += 10;
     } else if (keyCode === 32) {
@@ -239,7 +259,7 @@ class Ship {
   }
 
   update() {
-
+    // tradition vs extra condition im game update method, hmmm ...
   }
 
   handleEvents() {
@@ -261,30 +281,31 @@ class Being {
     this.position = position;
     this.directionX = 0;
     this.speedX = 2;
-    this.speedY = 0;
     this.size = {
       width: 57,
       height: 41
     };
+
+    this.invasionItself(this);
+  }
+
+  invasionItself(being) {
+    setInterval(() => {
+      this.position = {
+        posX: this.position.posX,
+        posY: this.position.posY + 10
+      }
+
+      if (this.position.posY + this.size.height + 100 > this.game.canvasSize.height) {
+        new Finish(this.game, 'You lose!');
+      }
+    }, 1000);
   }
 
   update() {
-    if (this.directionX < 0 || this.directionX > this.game.canvasSize.width - ((this.size.width + 24) * 12)) {
-      this.speedX = -this.speedX;
-    }
-
-    if (Math.random() > 0.9993 && !this.game.lowerRow(this)) {
-      const laser = new Laser(
-        {
-          posX: this.position.posX,
-          posY: this.position.posY + Math.round(this.size.width / 2)
-        }, {
-          x: Math.round(Math.random() - Math.random()),
-          y: 5
-        },
-        this.game.images[2]
-      );
-      this.game.objects.push(laser);
+    if (this.directionX < 0 ||
+        this.directionX > (this.game.canvasSize.width - ((this.size.width + 24) * 12))) {
+        this.speedX = -this.speedX;
     }
 
     this.position.posX += this.speedX;
@@ -292,6 +313,47 @@ class Being {
   }
 }
 
-(() => {
+class Audio {
+  constructor(sound, looped) {
+    this.audio = document.createElement("AUDIO");
+    this.audio.src = sound;
+    this.audio.loop = looped;
+
+    let audioOttoEvent = this.audio;
+    this.audio.addEventListener('canplaythrough', function() {
+      audioOttoEvent.play();
+    }, false);
+  }
+
+  stopPlaying() {
+    if (!this.audio.loop) {
+      setTimeout(() => {
+        delete window.this;
+      }, Math.ceil(this.audio.duration));
+    }
+  }
+}
+
+class Finish {
+  constructor(game, result) {
+    game = null;
+    this.head = document.createElement("H1");
+    this.head.style.color = 'red';
+    this.text = document.createTextNode(result);
+    this.head.appendChild(this.text);
+    document.body.appendChild(this.head);
+  }
+}
+
+let gameActive = () => {
+  new Audio('../sound/theme.mp3', true);
   new GAME();
-})();
+};
+
+const button = document.querySelector('.button'),
+      startScreen = document.querySelector('.start-screen');
+
+button.addEventListener('mouseup', function() {
+  document.body.removeChild(startScreen)
+  gameActive();
+}, false);

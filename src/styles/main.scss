@@ -1,3 +1,16 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.button {
+  margin: 0 auto;
+  width: 100px;
+  display: block;
+}
+
 .space {
   background-image: url('../../img/bg.jpg');
 }
