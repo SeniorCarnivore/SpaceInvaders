@@ -63,7 +63,8 @@ class GAME {
 
     if (this.beings === 0) {
       this.destroy()
-      new Finish(this.game, 'You win!');
+      new Finish('You win!');
+      return;
     }
 
     const survivers = (firstObject) => {
@@ -297,7 +298,7 @@ class Being {
       }
 
       if (this.position.posY + this.size.height + 100 > this.game.canvasSize.height) {
-        new Finish(this.game, 'You lose!');
+        new Finish('You lose!');
       }
     }, 1000);
   }
@@ -335,13 +336,33 @@ class Audio {
 }
 
 class Finish {
-  constructor(game, result) {
-    game = null;
-    this.head = document.createElement("H1");
+  constructor(result) {
+    this.canvas = document.querySelector('canvas');
+
+    //one day, a wonderful flag will be triggering here
+    if (this.canvas) {
+      document.body.removeChild(this.canvas);
+    } else {
+      return
+    }
+
+    this.head = document.createElement('h1');
+    this.button = document.createElement('button');
+    this.buttonText = document.createTextNode('Restart!');
+    this.button.appendChild(this.buttonText)
     this.head.style.color = 'red';
     this.text = document.createTextNode(result);
     this.head.appendChild(this.text);
     document.body.appendChild(this.head);
+    document.body.appendChild(this.button);
+
+    this.helpers();
+  }
+
+  helpers() {
+    document.querySelector('button').addEventListener('mouseup', function() {
+       window.location.reload();
+    }, false);
   }
 }
 
@@ -350,10 +371,10 @@ let gameActive = () => {
   new GAME();
 };
 
-const button = document.querySelector('.button'),
+const startButton = document.querySelector('.button'),
       startScreen = document.querySelector('.start-screen');
 
-button.addEventListener('mouseup', function() {
+startButton.addEventListener('mouseup', function() {
   document.body.removeChild(startScreen)
   gameActive();
 }, false);
