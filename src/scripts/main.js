@@ -251,8 +251,14 @@ class Ship {
 
   playerAction(keyCode) {
     if (keyCode === 37) {
+      if (this.position.posX < 0) {
+        return
+      }
       this.position.posX -= 10;
     } else if (keyCode === 39) {
+      if (this.position.posX >= (this.game.canvasSize.width - this.size.width - 20)) {
+        return
+      }
       this.position.posX += 10;
     } else if (keyCode === 32) {
       this.laserTime();
