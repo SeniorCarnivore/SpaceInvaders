@@ -1,0 +1,18 @@
+body {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+      justify-content: center;
+  -ms-flex-align: center;
+      align-items: center;
+  height: 100vh; }
+
+.button {
+  margin: 0 auto;
+  width: 100px;
+  display: block; }
+
+.space {
+  background-image: url("../../img/bg.jpg"); }
+
+/*# sourceMappingURL=main.css.map */
